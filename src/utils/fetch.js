@@ -1,4 +1,3 @@
-import originalFetch from "isomorphic-fetch";
 import * as C from "./constants";
 import extend from "extend";
 import {
@@ -74,11 +73,20 @@ function updateAuthCredentials(resp) {
   return resp;
 }
 
+let fetch;
+
 export default function (url, options={}) {
+  if (!fetch) {
+    throw new Exception('Must set fetch before making a request with redux-auth.');
+  }
   if (!options.headers) {
     options.headers = {}
   }
   extend(options.headers, getAuthHeaders(url));
-  return originalFetch(url, options)
+  return fetch(url, options)
     .then(resp => updateAuthCredentials(resp));
+}
+
+export function setFetch(fetchArg) {
+  fetch = fetchArg;
 }
